@@ -44,6 +44,7 @@ const AnswerValidation = z.object({
 
 export type InterviewData = {
 	jobTitle: string;
+  text: string;
 	company: string;
 	salary: string;
 	startDate: string;
@@ -51,6 +52,7 @@ export type InterviewData = {
 	seniority: string;
 	softSkills: string[];
 	hardSkills: string[];
+  questions?: SkillsType;
 };
 
 export type SkillsType = {
