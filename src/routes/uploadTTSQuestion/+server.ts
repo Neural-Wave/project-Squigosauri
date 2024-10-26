@@ -3,15 +3,18 @@ import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from '$lib/firebase.js';
 import { getStorage, listAll, ref, uploadBytes } from 'firebase/storage';
 import { z } from 'zod';
+import { addDoc, collection, getDocs, getFirestore } from 'firebase/firestore';
+import { questionDecoder } from '$lib/decoders';
 
 export async function POST({ request }) {
 	const { questions } = z.object({ questions: z.array(z.string()) }).parse(await request.json());
 
 	initializeApp(firebaseConfig);
 	const storage = getStorage();
+	const db = getFirestore();
 
-	const currentQuestions = (await listAll(ref(storage, 'questions'))).items.map(
-		({ name }) => name.split('.')[0]
+	const currentQuestions = (await getDocs(collection(db, 'questions'))).docs.map(
+		(doc) => questionDecoder.parse(doc.data()).name
 	);
 
 	const elevenlabs = new ElevenLabsClient({
@@ -21,7 +24,7 @@ export async function POST({ request }) {
 	for (const question of questions.filter((question) => !currentQuestions.includes(question))) {
 		const audioStream = await elevenlabs.generate({
 			stream: true,
-			voice: 'Charlotte',
+			voice: 'Jessica',
 			text: question,
 			model_id: 'eleven_multilingual_v2'
 		});
@@ -32,7 +35,9 @@ export async function POST({ request }) {
 		}
 		const content = Buffer.concat(chunks);
 
-		uploadBytes(ref(storage, `questions/${question}.mp3`), content, {
+		const savedQuestion = await addDoc(collection(db, 'questions'), { name: question });
+
+		uploadBytes(ref(storage, `questions/${savedQuestion.id}.mp3`), content, {
 			contentType: 'audio/mpeg'
 		});
 	}
