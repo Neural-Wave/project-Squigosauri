@@ -4,6 +4,7 @@
 	import { marked } from 'marked';
 	import { Icon } from 'svelte-icons-pack';
 	import { BiSolidPhoneCall } from 'svelte-icons-pack/bi';
+	import { mockJobOffer1 } from '$lib/proomp/prompts';
 
 	interface InterviewData {
 		jobTitle: string;
@@ -35,25 +36,7 @@
 		startDate: '2024-03-01',
 		location: 'San Francisco, CA',
 		seniority: 'Senior',
-		markdownDesc: `# Descrizione della Posizione: Software Engineer
-
-Siamo entusiasti di presentare l'opportunità di un **Software Engineer** presso **Tech Innovations Inc.** Questa posizione offre un **stipendio competitivo di 90,000 USD** e la possibilità di iniziare a lavorare dal **1 Marzo 2024** nella vibrante città di **San Francisco, CA**. Cerchiamo candidati con un livello di **seniority** elevato, pronti a contribuire a progetti innovativi.
-
-## Ruolo: Software Engineer
-
-### Soft Skills
-- **Problem Solving**: Capacità di affrontare e risolvere complessi problemi tecnici.
-- **Adaptability**: Flessibilità e capacità di adattarsi a nuove tecnologie e sfide.
-- **Collaboration**: Eccellenti doti relazionali per lavorare efficacemente all'interno di un team.
-
-### Hard Skills
-- **JavaScript** e **TypeScript**: Competenze solide in programmazione.
-- **React**: Esperienza nello sviluppo di interfacce utente moderne e responsive.
-- **Node.js**: Capacità di sviluppare applicazioni server-side.
-- **SQL**: Conoscenza approfondita nella gestione di database relazionali.
-
-Se ritieni di avere le competenze e l'esperienza necessarie, ti invitiamo a **premere il pulsante ed iniziare il colloquio di screening** per discutere questa entusiasmante opportunità.
-`,
+		markdownDesc: mockJobOffer1,
 		softskills: ['Problem Solving', 'Adaptability', 'Collaboration'],
 		hardskills: ['JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL']
 	};
