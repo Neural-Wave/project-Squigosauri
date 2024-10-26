@@ -85,7 +85,7 @@
 				<div class="rendered-markdown">{@html htmlDescription}</div>
 			</div>
 			<button
-				class="fixed bottom-0 left-1/2 mb-6 flex w-full max-w-xl -translate-x-1/2 items-center justify-center gap-4 rounded-md bg-orange-600 py-2 font-semibold text-white shadow-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-400"
+				class="fixed bottom-0 left-1/2 mb-6 flex w-full max-w-sm -translate-x-1/2 items-center justify-center gap-4 rounded-md bg-orange-600 py-2 font-semibold text-white shadow-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-400 lg:max-w-xl"
 			>
 				<Icon src={BiSolidPhoneCall}></Icon>
 				Start Screening Call
@@ -93,5 +93,5 @@
 		</div>
 	</Container>
 {:else}
-	<p>nothing to see here </p>
+	<p>nothing to see here</p>
 {/if}
