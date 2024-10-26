@@ -1,7 +1,3 @@
-import { initializeApp } from 'firebase/app';
-import { getAnalytics } from 'firebase/analytics';
-import { getFirestore } from 'firebase/firestore';
-
 export const firebaseConfig = {
 	apiKey: 'AIzaSyDC6tiIMRG_NptfH2bpdb03DznJ-vZQaAI',
 	authDomain: 'squigosauri-neuralwave.firebaseapp.com',
@@ -11,5 +7,3 @@ export const firebaseConfig = {
 	appId: '1:212883752258:web:603d5ebcfac0de0944b4db',
 	measurementId: 'G-56VVDGEST0'
 };
-
-
