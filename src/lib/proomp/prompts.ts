@@ -4,153 +4,153 @@ import { z } from 'zod';
 import type { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 
 const openai = new OpenAI({
-	apiKey:
-		'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',
-	dangerouslyAllowBrowser: true
+  apiKey:
+    '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',
+  dangerouslyAllowBrowser: true
 });
 
 const InterviewQuestions = z.object({
-	jobTitle: z.string(),
-	company: z.string(),
-	salary: z.string(),
-	startDate: z.string(),
-	location: z.string(),
-	seniority: z.string(),
-	softSkills: z.array(z.string()),
-	hardSkills: z.array(z.string())
+  jobTitle: z.string(),
+  company: z.string(),
+  salary: z.string(),
+  startDate: z.string(),
+  location: z.string(),
+  seniority: z.string(),
+  softSkills: z.array(z.string()),
+  hardSkills: z.array(z.string())
 });
 
 const Skills = z.object({
-	softSkills: z.array(
-		z.object({
-			skill: z.string(),
-			questions: z.array(z.string())
-		})
-	),
-	hardSkills: z.array(
-		z.object({
-			skill: z.string(),
-			questions: z.array(z.string())
-		})
-	)
+  softSkills: z.array(
+    z.object({
+      skill: z.string(),
+      questions: z.array(z.string())
+    })
+  ),
+  hardSkills: z.array(
+    z.object({
+      skill: z.string(),
+      questions: z.array(z.string())
+    })
+  )
 });
 
 const AnswerValidation = z.object({
-	answer: z.string(),
-	validation: z.string(),
-	needFurtherInformation: z.boolean(),
-	followupQuestion: z.string()
+  answer: z.string(),
+  validation: z.string(),
+  needFurtherInformation: z.boolean(),
+  followupQuestion: z.string()
 });
 
 export type InterviewData = {
-	jobTitle: string;
+  jobTitle: string;
   text: string;
-	company: string;
-	salary: string;
-	startDate: string;
-	location: string;
-	seniority: string;
-	softSkills: string[];
-	hardSkills: string[];
+  company: string;
+  salary: string;
+  startDate: string;
+  location: string;
+  seniority: string;
+  softSkills: string[];
+  hardSkills: string[];
   questions?: SkillsType;
 };
 
 export type SkillsType = {
-	softSkills: {
-		skill: string;
-		questions: string[];
-	}[];
-	hardSkills: {
-		skill: string;
-		questions: string[];
-	}[];
+  softSkills: {
+    skill: string;
+    questions: string[];
+  }[];
+  hardSkills: {
+    skill: string;
+    questions: string[];
+  }[];
 };
 
 export type AnswerValidationType = {
-	validation: string;
-	needFurtherInformation: boolean;
-	followupQuestion: string;
+  validation: string;
+  needFurtherInformation: boolean;
+  followupQuestion: string;
 };
 
 export const generateInterviewQuestion = (jobOffer: string) => {
-	const systemPrompt =
-		'Extract the relevant information from the job offer list the soft and hard skills needed to succeed in said position.';
+  const systemPrompt =
+    'Extract the relevant information from the job offer list the soft and hard skills needed to succeed in said position.';
 
-	const res = openai.chat.completions.create({
-		model: 'gpt-4o',
-		temperature: 0,
-		messages: [
-			{
-				role: 'system',
-				content: systemPrompt
-			},
-			{
-				role: 'user',
-				content: jobOffer
-			}
-		],
-		response_format: zodResponseFormat(InterviewQuestions, 'interviewQuestions')
-	});
+  const res = openai.chat.completions.create({
+    model: 'gpt-4o',
+    temperature: 0,
+    messages: [
+      {
+        role: 'system',
+        content: systemPrompt
+      },
+      {
+        role: 'user',
+        content: jobOffer
+      }
+    ],
+    response_format: zodResponseFormat(InterviewQuestions, 'interviewQuestions')
+  });
 
-	return res;
+  return res;
 };
 
 export const getSkillQuestions = (jobTitle: string, softSkills: string[], hardSkills: string[]) => {
-	const systemPrompt = 'Generate questions for each soft and hard skills.';
+  const systemPrompt = 'Generate questions for each soft and hard skills.';
 
-	const res = openai.chat.completions.create({
-		model: 'gpt-4o',
-		temperature: 0,
-		messages: [
-			{
-				role: 'system',
-				content: systemPrompt
-			},
-			{
-				role: 'user',
-				content: `JOB TITLE: ${jobTitle}\n\nSOFT SKILLS\n-${softSkills.join('\n-')}\n\nHARD SKILLS\n-${hardSkills.join('\n-')}`
-			}
-		],
-		response_format: zodResponseFormat(Skills, 'skills')
-	});
+  const res = openai.chat.completions.create({
+    model: 'gpt-4o',
+    temperature: 0,
+    messages: [
+      {
+        role: 'system',
+        content: systemPrompt
+      },
+      {
+        role: 'user',
+        content: `JOB TITLE: ${jobTitle}\n\nSOFT SKILLS\n-${softSkills.join('\n-')}\n\nHARD SKILLS\n-${hardSkills.join('\n-')}`
+      }
+    ],
+    response_format: zodResponseFormat(Skills, 'skills')
+  });
 
-	return res;
+  return res;
 };
 
 export const validateAnswer = (
-	interviewData: InterviewData,
-	history: ChatCompletionMessageParam[],
-	skill: string,
-	question: string,
-	answer: string
+  interviewData: InterviewData,
+  history: ChatCompletionMessageParam[],
+  skill: string,
+  question: string,
+  answer: string
 ) => {
-	const systemPrompt = `You are a HR specialist having an interview with a candidate for a ${interviewData.seniority} seniority ${interviewData.jobTitle} position, with location in ${interviewData.location}. 
+  const systemPrompt = `You are a HR specialist having an interview with a candidate for a ${interviewData.seniority} seniority ${interviewData.jobTitle} position, with location in ${interviewData.location}. 
   You will have to validate the user's answers to your question and answer accodingly.
   If you feel you need to have more information from the candidate on the topic you asked, set the 'needFurtherInformation' key to true and come up with a followup question. Make sure to keep the candidate on track.
   Otherwise if you feel that the user was exhaustive enough or cannot give more valuable answers, set it to false and come up with short and concise followup answer.`;
 
-	const res = openai.chat.completions.create({
-		model: 'gpt-4o',
-		temperature: 0,
-		messages: [
-			{
-				role: 'system',
-				content: systemPrompt
-			},
-			...history,
-			{
-				role: 'assistant',
-				content: `Speaking about the skill "${skill}". ${question}`
-			},
-			{
-				role: 'user',
-				content: answer
-			}
-		],
-		response_format: zodResponseFormat(AnswerValidation, 'validation')
-	});
+  const res = openai.chat.completions.create({
+    model: 'gpt-4o',
+    temperature: 0,
+    messages: [
+      {
+        role: 'system',
+        content: systemPrompt
+      },
+      ...history,
+      {
+        role: 'assistant',
+        content: `Speaking about the skill "${skill}". ${question}`
+      },
+      {
+        role: 'user',
+        content: answer
+      }
+    ],
+    response_format: zodResponseFormat(AnswerValidation, 'validation')
+  });
 
-	return res;
+  return res;
 };
 
 export const mockJobOffer1 = `# Fullstack Software Engineer - Example Job for Neuralwave
