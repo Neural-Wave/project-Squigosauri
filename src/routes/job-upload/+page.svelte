@@ -1,7 +1,6 @@
 <script lang="ts">
 	import H1 from '../../components/Typography/H1.svelte';
 	import Container from '../../components/UI/Container.svelte';
-
 	interface ApiResponse {
 		success: boolean;
 		html?: string;
@@ -47,13 +46,13 @@
 					bind:value={markdownContent}
 					rows="10"
 					class="block w-full rounded-md border border-orange-300 p-2 focus:outline-none focus:ring focus:ring-orange-300"
-					placeholder="Paste here your markdown"
 				></textarea>
+
 				<button
 					type="submit"
-					class="font-geist mt-4 w-full rounded-md bg-orange-600 py-2 font-semibold text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-400"
+					class=" mt-4 w-full rounded-md bg-orange-600 py-2 font-semibold text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-400"
 				>
-					INVIA
+					Upload new job position
 				</button>
 			</form>
 		</div>

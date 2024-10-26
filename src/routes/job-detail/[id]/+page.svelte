@@ -1,6 +1,9 @@
 <script lang="ts">
 	import Container from '../../../components/UI/Container.svelte';
 	import { page } from '$app/stores';
+	import { marked } from 'marked';
+	import { Icon } from 'svelte-icons-pack';
+	import { BiSolidPhoneCall } from 'svelte-icons-pack/bi';
 
 	interface InterviewData {
 		jobTitle: string;
@@ -36,7 +39,7 @@
 
 Siamo entusiasti di presentare l'opportunità di un **Software Engineer** presso **Tech Innovations Inc.** Questa posizione offre un **stipendio competitivo di 90,000 USD** e la possibilità di iniziare a lavorare dal **1 Marzo 2024** nella vibrante città di **San Francisco, CA**. Cerchiamo candidati con un livello di **seniority** elevato, pronti a contribuire a progetti innovativi.
 
-## Requisiti della Posizione:
+## Ruolo: Software Engineer
 
 ### Soft Skills
 - **Problem Solving**: Capacità di affrontare e risolvere complessi problemi tecnici.
@@ -49,16 +52,21 @@ Siamo entusiasti di presentare l'opportunità di un **Software Engineer** presso
 - **Node.js**: Capacità di sviluppare applicazioni server-side.
 - **SQL**: Conoscenza approfondita nella gestione di database relazionali.
 
-Se ritieni di avere le competenze e l'esperienza necessarie, ti invitiamo a **iniziare il colloquio di screening** per discutere questa entusiasmante opportunità.
+Se ritieni di avere le competenze e l'esperienza necessarie, ti invitiamo a **premere il pulsante ed iniziare il colloquio di screening** per discutere questa entusiasmante opportunità.
 `,
 		softskills: ['Problem Solving', 'Adaptability', 'Collaboration'],
 		hardskills: ['JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL']
 	};
+
+	const htmlDescription = marked(interviewData.markdownDesc);
 </script>
 
 <Container>
 	<div class="bordershadow-md mx-auto max-w-3xl rounded-lg pl-4 pr-4">
-		<h1 class="mb-2 text-2xl font-bold text-orange-600">Job Title: {interviewData.jobTitle}</h1>
+		<h1 class="mb-2 text-2xl font-bold text-orange-600">
+			Job Title: {interviewData.jobTitle} - #{$page.params.id}
+		</h1>
+
 		<div class="mt-4 flex flex-col justify-between gap-4 md:flex-row md:gap-0">
 			<div class="flex flex-col">
 				<h2 class="text-xl font-semibold">Summary</h2>
@@ -98,17 +106,15 @@ Se ritieni di avere le competenze e l'esperienza necessarie, ti invitiamo a **in
 			</div>
 		</div>
 		<hr class="mb-6 mt-6" />
-		<div>
+		<div class="mb-24">
 			<h2 class="text-xl font-semibold">Job description</h2>
-			<p>{interviewData.markdownDesc}</p>
+			<div class="rendered-markdown">{@html htmlDescription}</div>
 		</div>
-		<div></div>
-		<div class="mt-6">
-			<button
-				class="font-geist mt-4 w-full rounded-md bg-orange-600 py-2 font-semibold text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-400"
-			>
-				Start Screening Call
-			</button>
-		</div>
+		<button
+			class="fixed bottom-0 left-1/2 mb-6 flex w-full max-w-xl -translate-x-1/2 items-center justify-center gap-4 rounded-md bg-orange-600 py-2 font-semibold text-white shadow-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-400"
+		>
+			<Icon src={BiSolidPhoneCall}></Icon>
+			Start Screening Call
+		</button>
 	</div>
 </Container>
