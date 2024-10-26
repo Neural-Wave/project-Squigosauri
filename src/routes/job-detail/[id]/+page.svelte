@@ -5,6 +5,17 @@
 	import { Icon } from 'svelte-icons-pack';
 	import { BiSolidPhoneCall } from 'svelte-icons-pack/bi';
 	import { mockJobOffer1 } from '$lib/proomp/prompts';
+	import { onMount } from 'svelte';
+	import { initializeApp, type FirebaseApp } from 'firebase/app';
+	import {
+		doc,
+		DocumentReference,
+		Firestore,
+		getFirestore,
+		getDoc,
+		type DocumentData
+	} from 'firebase/firestore';
+	import { firebaseConfig } from '$lib/firebase';
 
 	interface InterviewData {
 		jobTitle: string;
@@ -17,31 +28,23 @@
 		hardskills: string[];
 	}
 
-	// onMount(async () => {
-	// 	try {
-	// 		const response = await fetch(`/api/interviews/${$page.params.id}`);
-	// 		if (!response.ok) {
-	// 			throw new Error('Network response was not ok');
-	// 		}
-	// 		interviewData = await response.json();
-	// 	} catch (err) {
-	// 		error = err instanceof Error ? err.message : 'Unknown error occurred';
-	// 	}
-	// });
+	let interviewData: InterviewData;
 
-	const interviewData = {
-		jobTitle: 'Software Engineer',
-		company: 'Tech Innovations Inc.',
-		salary: '90,000',
-		startDate: '2024-03-01',
-		location: 'San Francisco, CA',
-		seniority: 'Senior',
-		markdownDesc: mockJobOffer1,
-		softskills: ['Problem Solving', 'Adaptability', 'Collaboration'],
-		hardskills: ['JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL']
-	};
+	onMount(async () => {
+		let app = initializeApp(firebaseConfig);
+		let db = getFirestore(app);
+		const docRef = doc(db, 'job_offers', $page.params.id);
+		const res = await getDoc(docRef);
+		console.log(res);
+		if (res.exists()) {
+			console.log('Document data:', res.data());
+			interviewData = res.data();
+		} else {
+			console.log('No such document!');
+		}
+	});
 
-	const htmlDescription = marked(interviewData.markdownDesc);
+	const htmlDescription = marked(interviewData ? interviewData.text : '');
 </script>
 
 <Container>
