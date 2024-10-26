@@ -86,16 +86,18 @@
 				<h2 class="text-xl font-semibold">Job description</h2>
 				<div class="rendered-markdown">{@html htmlDescription}</div>
 			</div>
-			<div>
+			<div
+				class="fixed bottom-0 left-1/2 flex w-full -translate-x-1/2 flex-col items-center justify-center sm:flex-row"
+			>
 				<input
-					class="fixed bottom-0 left-1/2 mb-16 flex w-full max-w-md -translate-x-1/2 items-center justify-center gap-4 rounded-md text-center focus:ring-2 focus:ring-orange-400"
+					class=" flex w-full max-w-md items-center justify-center gap-4 rounded-md text-center focus:ring-2 focus:ring-orange-400"
 					type="text"
 					placeholder="Insert name to start the screening call"
 					bind:value={userName}
 				/>
 				<a href={`/jobs/${$page.params.id}/call?name=${userName}`}>
 					<button
-						class="fixed bottom-0 left-1/2 mb-6 flex w-full max-w-sm -translate-x-1/2 items-center justify-center gap-4 rounded-md bg-orange-600 py-2 font-semibold text-white shadow-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-400 lg:max-w-xl
+						class="min-w-xl flex w-full items-center justify-center gap-4 rounded-md bg-orange-600 py-2 pl-4 pr-4 font-semibold text-white shadow-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-400
 					{userName === ''
 							? 'cursor-not-allowed bg-gray-400 hover:bg-gray-400'
 							: 'bg-orange-600 hover:bg-orange-700'} "
