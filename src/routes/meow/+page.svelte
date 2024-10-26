@@ -5,7 +5,7 @@
 		const response = await fetch(`/uploadTTSQuestion`, {
 			method: 'POST',
 			body: JSON.stringify({
-				questions: ['Oil up sally', "Hi i'm Matteo, i'm a loser", 'GNAAAAAAAM']
+				questions: ['Oil up sally', "Hi i'm Matteo, i'm a winner", 'GNAAAAAAAM']
 			}),
 			headers: { contentType: 'application/json' }
 		});

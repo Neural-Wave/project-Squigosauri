@@ -4,7 +4,7 @@
 	import { marked } from 'marked';
 	import { Icon } from 'svelte-icons-pack';
 	import { BiSolidPhoneCall } from 'svelte-icons-pack/bi';
-	import { mockJobOffer1, type InterviewData } from '$lib/proomp/prompts';
+	import { type InterviewData } from '$lib/proomp/prompts';
 	import { onMount } from 'svelte';
 	import { initializeApp, type FirebaseApp } from 'firebase/app';
 	import {
