@@ -16,8 +16,8 @@
 	let jobDetails: InterviewData | undefined = $state();
 	let markdownContent: string = $state('');
 
-	let app: FirebaseApp
-	let db: Firestore
+	let app: FirebaseApp;
+	let db: Firestore;
 
 	onMount(() => {
 		app = initializeApp(firebaseConfig);
@@ -32,26 +32,34 @@
 				? (JSON.parse(res.choices[0].message.content) as InterviewData)
 				: null;
 
-			console.log(data);
-
 			if (data) {
 				getSkillQuestions(data.jobTitle, data.softSkills, data.hardSkills).then(async (res) => {
 					const skills = res.choices[0].message.content
 						? (JSON.parse(res.choices[0].message.content) as SkillsType)
 						: null;
 
-					console.log(skills);
-
 					if (skills) {
 						jobDetails = {
 							...data,
 							text: markdownContent,
-							questions: skills,
+							questions: skills
 						};
+
+						await fetch(`/uploadTTSQuestion`, {
+							method: 'POST',
+							body: JSON.stringify({
+								questions: [
+									...skills.hardSkills.flatMap((skill) => skill.questions),
+									...skills.softSkills.flatMap((skill) => skill.questions),
+								]
+							}),
+							headers: { contentType: 'application/json' }
+						});
+
 					} else {
 						jobDetails = {
 							...data,
-							text: markdownContent,
+							text: markdownContent
 						};
 					}
 
