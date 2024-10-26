@@ -4,7 +4,7 @@
 	import { marked } from 'marked';
 	import { Icon } from 'svelte-icons-pack';
 	import { BiSolidPhoneCall } from 'svelte-icons-pack/bi';
-	import { mockJobOffer1 } from '$lib/proomp/prompts';
+	import { mockJobOffer1, type InterviewData } from '$lib/proomp/prompts';
 	import { onMount } from 'svelte';
 	import { initializeApp, type FirebaseApp } from 'firebase/app';
 	import {
@@ -17,43 +17,30 @@
 	} from 'firebase/firestore';
 	import { firebaseConfig } from '$lib/firebase';
 
-	interface InterviewData {
-		jobTitle: string;
-		company: string;
-		salary: string;
-		startDate: string;
-		location: string;
-		seniority: string;
-		softskills: string[];
-		hardskills: string[];
-	}
+	let interviewData: InterviewData | undefined = $state();
+	let htmlDescription: string = $state('');
 
-	let interviewData: InterviewData;
-
-	onMount(async () => {
+	onMount(() => {
 		let app = initializeApp(firebaseConfig);
 		let db = getFirestore(app);
 		const docRef = doc(db, 'job_offers', $page.params.id);
-		const res = await getDoc(docRef);
-		console.log(res);
-		if (res.exists()) {
-			console.log('Document data:', res.data());
-			interviewData = res.data();
-		} else {
-			console.log('No such document!');
-		}
+		getDoc(docRef).then((res) => {
+			if (res.exists()) {
+				interviewData = res.data() as InterviewData;
+				htmlDescription = marked(interviewData ? interviewData.text : '') as string;
+			} 
+		});
 	});
 
-	const htmlDescription = marked(interviewData ? interviewData.text : '');
 </script>
-
+{#if interviewData}
 <Container>
 	<div class="bordershadow-md mx-auto max-w-3xl rounded-lg pl-4 pr-4">
 		<h1 class="mb-2 text-2xl font-bold text-orange-600">
-			Job Title: {interviewData.jobTitle} - #{$page.params.id}
+			{interviewData.jobTitle} - {interviewData.company}
 		</h1>
 
-		<div class="mt-4 flex flex-col justify-between gap-4 md:flex-row md:gap-0">
+		<div class="mt-8 flex flex-col justify-between gap-4 md:flex-row md:gap-0">
 			<div class="flex flex-col">
 				<h2 class="text-xl font-semibold">Summary</h2>
 				<p class="text-gray-600">
@@ -76,7 +63,7 @@
 			<div>
 				<h2 class="text-xl font-semibold">Soft Skills</h2>
 				<ul class="list-disc pl-5">
-					{#each interviewData.softskills as skill}
+					{#each interviewData.softSkills as skill}
 						<li class="text-gray-600">{skill}</li>
 					{/each}
 				</ul>
@@ -85,7 +72,7 @@
 			<div>
 				<h2 class="text-xl font-semibold">Hard Skills</h2>
 				<ul class="list-disc pl-5">
-					{#each interviewData.hardskills as skill}
+					{#each interviewData.hardSkills as skill}
 						<li class="text-gray-600">{skill}</li>
 					{/each}
 				</ul>
@@ -104,3 +91,4 @@
 		</button>
 	</div>
 </Container>
+{/if}
