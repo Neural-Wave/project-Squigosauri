@@ -1,13 +1,12 @@
 import { ElevenLabsClient } from 'elevenlabs';
 import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from '$lib/firebase.js';
-import { getStorage, listAll, ref, uploadBytes } from 'firebase/storage';
-import { z } from 'zod';
+import { getStorage, ref, uploadBytes } from 'firebase/storage';
 import { addDoc, collection, getDocs, getFirestore } from 'firebase/firestore';
-import { questionDecoder } from '$lib/decoders';
+import { questionDecoder, questionsDecoder } from '$lib/decoders';
 
 export async function POST({ request }) {
-	const { questions } = z.object({ questions: z.array(z.string()) }).parse(await request.json());
+	const { questions } = questionsDecoder.parse(await request.json());
 
 	initializeApp(firebaseConfig);
 	const storage = getStorage();
