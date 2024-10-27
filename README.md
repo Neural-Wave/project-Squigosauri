@@ -1,38 +1,43 @@
-# create-svelte
+# Squigosauri NeuralWave Job Portal
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+This application is a job listing portal with an upload interface for adding new job posts. Users can view job listings on the main page and upload new job posts through a dedicated URL.
 
-## Creating a project
+## Table of Contents
 
-If you're seeing this, you've probably already done this step. Congrats!
+1. [Overview](#overview)
+2. [Requirements](#requirements)
+3. [Running the Application](#running-the-application)
 
-```bash
-# create a new project in the current directory
-npx sv create
+---
 
-# create a new project in my-app
-npx sv create my-app
-```
+### Overview
 
-## Developing
+The Squigosauri NeuralWave Job Portal is built with SvelteKit and Vite, with Tailwind CSS for styling and Firebase for backend integrations. This portal includes:
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+- Job listings viewable on the homepage.
+- A form for creating new job posts accessible via the `/job-upload` URL.
 
-```bash
-npm run dev
+### Requirements
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+Before running this project, make sure you have the following installed:
 
-## Building
+- [Node.js](https://nodejs.org/) (Recommended version: 23.1.0, managed by Volta)
+- [npm](https://www.npmjs.com/)
 
-To create a production version of your app:
+### Running the Application
 
-```bash
-npm run build
-```
+1. **Install Dependencies**: Run the following command to install all necessary packages:
 
-You can preview the production build with `npm run preview`.
+   ```bash
+   npm install
+   ```
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+2. **Run the Application**: Start the application in development mode:
+   ```bash
+   npm run dev
+   ```
+   The application will be available on your local server, usually at `http://localhost:5173`. The main page displays the job listings, while new job posts can be added at the `/job-upload` URL.
+
+### Dependencies
+
+All required dependencies are listed in the `requirements.txt` file for easy setup.

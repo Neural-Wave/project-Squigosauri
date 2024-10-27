@@ -90,7 +90,7 @@
 			{/if}
 
 			<div
-				class="fixed bottom-0 left-1/2 flex w-full -translate-x-1/2 flex-col items-center justify-center sm:flex-row"
+				class="fixed bottom-0 left-1/2 flex w-full -translate-x-1/2 flex-col items-center justify-center gap-4 sm:flex-row"
 			>
 				<input
 					class=" flex w-full max-w-md items-center justify-center gap-4 rounded-md border-2 border-gray-200 text-center focus:ring-2 focus:ring-orange-400"
@@ -98,10 +98,10 @@
 					placeholder="Insert name to start the screening call"
 					bind:value={userName}
 				/>
-				<a href={`/jobs/${$page.params.id}/call?name=${userName}`}>
+				<a href={`/screeningCall/${$page.params.id}?name=${userName}`}>
 					<button
 						class="min-w-xl flex w-full items-center justify-center gap-4 rounded-md
-					 bg-orange-600 py-2 pl-4 pr-4 font-semibold text-white shadow-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-400
+					 py-2 pl-4 pr-4 font-semibold text-white shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-400
 					{userName === ''
 							? 'cursor-not-allowed bg-gray-400 hover:bg-gray-400'
 							: 'bg-orange-600 hover:bg-orange-700'} "
