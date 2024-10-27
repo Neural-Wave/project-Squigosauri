@@ -5,6 +5,26 @@ import { collection, doc, getDoc, getDocs, getFirestore, query, where } from 'fi
 import { jobDecoder } from '$lib/decoders';
 import { randomElement } from '$lib/utils';
 import { getDownloadURL, getStorage, ref } from 'firebase/storage';
+import type { InterviewData } from '$lib/proomp/prompts';
+
+export type CallPageData = {
+	job: InterviewData;
+	prefetchedAudio: {
+		greetingStart: { buffer: ArrayBuffer; text: string };
+		location: { buffer: ArrayBuffer; text: string };
+	};
+	softSkillQuestions: Record<string, { url: string; skill: string }>;
+	hardSkillQuestions: Record<string, { url: string; skill: string }>;
+	customQuestionURL: {
+		initialAck: { url: string; text: string };
+		greetingEnd: { url: string; text: string };
+		diploma: { url: string; text: string };
+		transition: { url: string; text: string };
+		salary: { url: string; text: string };
+		lastQuestion: { url: string; text: string };
+		byeBye: { url: string; text: string };
+	};
+};
 
 initializeApp(firebaseConfig);
 const db = getFirestore();
@@ -17,6 +37,13 @@ async function getQuestionId(question: string) {
 
 async function getQuestionDownloadURLFromId(id: string) {
 	return await getDownloadURL(ref(storage, `questions/${id}.mp3`));
+}
+
+async function getQuestionInfoFromId(id: string) {
+	const url = await getQuestionDownloadURLFromId(id);
+	const text = (await getDoc(doc(db, 'questions', id))).data()?.name;
+
+	return { url, text };
 }
 
 export const load: PageLoad = async ({ params, fetch, url }) => {
@@ -37,58 +64,75 @@ export const load: PageLoad = async ({ params, fetch, url }) => {
 		question: randomElement(hardSkills?.questions)
 	}));
 
-	const skillQuestionsURLMap: Record<string, string> = {};
-
-	for await (const skillQuestion of [...softSkillQuestions, ...hardSkillQuestions]) {
-		const { question } = skillQuestion;
+	const softSkillQuestionsURLMap: Record<string, { url: string; skill: string }> = {};
+	for await (const skillQuestion of softSkillQuestions) {
+		const { question, skill } = skillQuestion;
 		const questionId = await getQuestionId(question);
 
-		skillQuestionsURLMap[question] = await getQuestionDownloadURLFromId(questionId);
+		softSkillQuestionsURLMap[question] = {
+			url: await getQuestionDownloadURLFromId(questionId),
+			skill
+		};
 	}
 
-	let encodeUrl = new URLSearchParams({ question: `Hi, ${name}` });
+	const hardSkillQuestionsURLMap: Record<string, { url: string; skill: string }> = {};
+	for await (const skillQuestion of hardSkillQuestions) {
+		const { question, skill } = skillQuestion;
+		const questionId = await getQuestionId(question);
+
+		hardSkillQuestionsURLMap[question] = {
+			url: await getQuestionDownloadURLFromId(questionId),
+			skill
+		};
+	}
+
+	const greetingText = `Hi, ${name}`;
+	let encodeUrl = new URLSearchParams({ question: greetingText });
 	const greetingAudio = await fetch(`/dynamicTTS?${encodeUrl.toString()}`, {
 		method: 'GET'
 	});
 	const greetingArrayBuffer = await greetingAudio.arrayBuffer();
+	const greetingStartQuestion = { buffer: greetingArrayBuffer, text: greetingText };
 
+	const locationText = `Thanks for diving into all those skill assessment questions with me! Before we continue, how do you feel about the location in ${job.location}? Does it work for you?`;
 	encodeUrl = new URLSearchParams({
-		question: `Thanks for diving into all those skill assessment questions with me! Before we continue, how do you feel about the location in ${job.location}? Does it work for you?`
+		question: locationText
 	});
 	const locationAudio = await fetch(`/dynamicTTS?${encodeUrl.toString()}`, {
 		method: 'GET'
 	});
 	const locationArrayBuffer = await locationAudio.arrayBuffer();
+	const locationQuestion = { buffer: locationArrayBuffer, text: locationText };
 
-	const initialAckURL = await getDownloadURL(
-		ref(storage, `acks/${randomElement((await getDocs(collection(db, 'acks'))).docs).id}.mp3`)
-	);
+	const initialAckId = randomElement((await getDocs(collection(db, 'acks'))).docs).id;
+	const initialAckQuestion = {
+		url: await getDownloadURL(ref(storage, `acks/${initialAckId}.mp3`)),
+		text: (await getDoc(doc(db, 'acks', initialAckId))).data()?.name
+	};
 
-	const greetingURL = await getQuestionDownloadURLFromId('Ql7iRAdQt3QgSJ4umPnv');
-	const diplomaURL = await getQuestionDownloadURLFromId('UpA402IkN24tpcTxyssA');
-	const transitionURL = await getQuestionDownloadURLFromId('rLZp9uq8fxlDJytPWojX');
-	const salaryURL = await getQuestionDownloadURLFromId('V8Gnhud3yTZybDFA3MpB');
-	const lastQuestionURL = await getQuestionDownloadURLFromId('8GGE1Q7Hzd4rEAwZgbYz');
-	const byeByeURL = await getQuestionDownloadURLFromId('jFhS1L9h4kQjaOq0MLjA');
+	const greetingQuestion = await getQuestionInfoFromId('Ql7iRAdQt3QgSJ4umPnv');
+	const diplomaQuestion = await getQuestionInfoFromId('UpA402IkN24tpcTxyssA');
+	const transitionQuestion = await getQuestionInfoFromId('rLZp9uq8fxlDJytPWojX');
+	const salaryQuestion = await getQuestionInfoFromId('V8Gnhud3yTZybDFA3MpB');
+	const lastQuestionQuestion = await getQuestionInfoFromId('8GGE1Q7Hzd4rEAwZgbYz');
+	const byeByeQuestion = await getQuestionInfoFromId('jFhS1L9h4kQjaOq0MLjA');
 
 	return {
-		job,
-		skillQuestionsIdMap: skillQuestionsURLMap,
+		job: { ...job, id: jobId },
 		prefetchedAudio: {
-			greeting: greetingArrayBuffer,
-			location: locationArrayBuffer
+			greetingStart: greetingStartQuestion,
+			location: locationQuestion
 		},
-		questionsURL: {
-			...skillQuestionsURLMap
-		},
+		softSkillQuestions: softSkillQuestionsURLMap,
+		hardSkillQuestions: hardSkillQuestionsURLMap,
 		customQuestionURL: {
-			initial: initialAckURL,
-			greeting: greetingURL,
-			diploma: diplomaURL,
-			transition: transitionURL,
-			salary: salaryURL,
-			lastQuestion: lastQuestionURL,
-			byeBye: byeByeURL
+			initialAck: initialAckQuestion,
+			greetingEnd: greetingQuestion,
+			diploma: diplomaQuestion,
+			transition: transitionQuestion,
+			salary: salaryQuestion,
+			lastQuestion: lastQuestionQuestion,
+			byeBye: byeByeQuestion
 		}
-	};
+	} satisfies CallPageData;
 };

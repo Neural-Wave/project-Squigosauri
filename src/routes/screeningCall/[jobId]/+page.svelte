@@ -1,53 +1,67 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { jobDecoder } from '$lib/decoders';
-	import { firebaseConfig } from '$lib/firebase';
-	import { type ConversationPhase } from '$lib/proomp/prompts';
-	import { playAudio, randomElement } from '$lib/utils';
-	import { initializeApp } from 'firebase/app';
-	import { doc, getDoc, getFirestore } from 'firebase/firestore';
 	import { onMount } from 'svelte';
-	import type { z } from 'zod';
+	import type { CallPageData } from './proxy+page';
+	import { playAudio } from '$lib/utils';
+	import { extractDiplomas } from '$lib/proomp/prompts';
 
-	const { job, greetingAudio } = $page.data as {
-		job: z.infer<typeof jobDecoder>;
-		greetingAudio: ArrayBuffer;
-	};
+	const { job, customQuestionURL, prefetchedAudio, softSkillQuestions, hardSkillQuestions } =
+		$page.data as CallPageData;
 
-	const name = $page.url.searchParams.get('name') ?? '';
+	const { byeBye, diploma, greetingEnd, initialAck, lastQuestion, salary, transition } =
+		customQuestionURL;
+
+	const { greetingStart, location } = prefetchedAudio;
 
 	type ConversationStatus = 'IDLE' | 'AI_TALKING' | 'AI_THINKING' | 'HUMAN_TALKING' | 'COMPLETE';
 	let conversationStatus = $state<ConversationStatus>('IDLE');
-	let conversationPhase = $state<ConversationPhase>('greetings');
+	let conversationPhase = $state('greetings');
 
-	let currentQuestion = $state<string | undefined>();
-	let skillQuestionsQueue = $state<{ skill: string; question: string }[]>([
-		...(job.questions?.softSkills ?? []).map((softSkills) => ({
-			skill: softSkills.skill,
-			question: randomElement(softSkills?.questions)
-		})),
-		...(job.questions?.hardSkills ?? []).map((hardSkills) => ({
-			skill: hardSkills.skill,
-			question: randomElement(hardSkills?.questions)
-		}))
+	let questionQueue = $state([
+		{
+			playQuestion: (onPlaybackEnd: () => void) => {
+				const audioPlayer = new Audio(diploma.url);
+				audioPlayer.onended = onPlaybackEnd;
+				audioPlayer.play();
+			},
+			answerHandler: async (answer: string) => {
+				const feedback = await extractDiplomas(answer);
+				console.log(feedback);
+			},
+			questionText: diploma.text
+		}
 	]);
-	let history = $state<string[]>([]);
 
-	onMount(async () => {
-		conversationStatus = 'IDLE';
-	});
+	let history = $state<string[]>([]);
 
 	$effect(() => {
 		switch (conversationStatus) {
 			case 'IDLE': {
+				playAudio(greetingStart.buffer, () => {
+					const greetingEndPlayer = new Audio(greetingEnd.url);
+					greetingEndPlayer.onended = () => {
+						conversationStatus = 'AI_TALKING';
+					};
+					greetingEndPlayer.play();
+				});
+
+				return;
 			}
 			case 'AI_TALKING': {
+				questionQueue[0].playQuestion(() => {
+					conversationStatus = 'HUMAN_TALKING';
+				});
+
+				return;
 			}
 			case 'AI_THINKING': {
+				return;
 			}
 			case 'HUMAN_TALKING': {
+				return;
 			}
 			case 'COMPLETE': {
+				return;
 			}
 		}
 	});
@@ -56,7 +70,7 @@
 <div class="grid grid-cols-2">
 	<div>
 		<div>STATUS: {conversationStatus}</div>
-		<div>CURRENT QUESTION: {currentQuestion}</div>
+		<div>CURRENT QUESTION: {questionQueue[0].questionText}</div>
 	</div>
 	<div>
 		<p>HISTORY</p>

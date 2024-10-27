@@ -5,6 +5,7 @@ export const questionsDecoder = z.object({ questions: z.array(z.string()) });
 
 export const ackDecoder = z.object({ name: z.string() });
 export const acksDecoder = z.object({ acks: z.array(z.string()) });
+
 export const skillsDecoder = z.object({
 	softSkills: z.array(
 		z.object({
@@ -19,6 +20,7 @@ export const skillsDecoder = z.object({
 		})
 	)
 });
+
 export const jobDecoder = z.object({
 	jobTitle: z.string(),
 	text: z.string(),
