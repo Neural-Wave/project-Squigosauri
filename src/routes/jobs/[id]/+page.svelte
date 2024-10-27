@@ -82,10 +82,13 @@
 				</div>
 			</div>
 			<hr class="mb-6 mt-6" />
-			<div class="mb-24">
-				<h2 class="text-xl font-semibold">Job description</h2>
-				<div class="rendered-markdown">{@html htmlDescription}</div>
-			</div>
+			{#if htmlDescription != ''}
+				<div class="mb-24">
+					<h2 class="text-xl font-semibold">Job description</h2>
+					<div class="rendered-markdown">{@html htmlDescription}</div>
+				</div>
+			{/if}
+
 			<div
 				class="fixed bottom-0 left-1/2 flex w-full -translate-x-1/2 flex-col items-center justify-center sm:flex-row"
 			>
