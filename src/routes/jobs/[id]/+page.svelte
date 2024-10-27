@@ -90,7 +90,7 @@
 			{/if}
 
 			<div
-				class="fixed bottom-0 left-1/2 flex w-full -translate-x-1/2 flex-col items-center justify-center sm:flex-row"
+				class="fixed bottom-0 left-1/2 flex w-full -translate-x-1/2 flex-col items-center justify-center gap-4 sm:flex-row"
 			>
 				<input
 					class=" flex w-full max-w-md items-center justify-center gap-4 rounded-md border-2 border-gray-200 text-center focus:ring-2 focus:ring-orange-400"
