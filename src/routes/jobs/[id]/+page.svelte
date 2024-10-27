@@ -98,7 +98,7 @@
 					placeholder="Insert name to start the screening call"
 					bind:value={userName}
 				/>
-				<a href={`/jobs/${$page.params.id}/call?name=${userName}`}>
+				<a href={`/screeningCall/${$page.params.id}?name=${userName}`}>
 					<button
 						class="min-w-xl flex w-full items-center justify-center gap-4 rounded-md
 					 bg-orange-600 py-2 pl-4 pr-4 font-semibold text-white shadow-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-400
