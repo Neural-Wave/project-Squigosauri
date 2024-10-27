@@ -237,8 +237,6 @@ export type ConversationPhase =
 export type ConversationMessageType = {
 	role: 'user' | 'assistant';
 	content: string;
-	type: ConversationPhase;
-	skill?: string;
 };
 
 export const answerFinalQuestion = (
