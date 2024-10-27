@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import { z } from 'zod';
-import type { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
+import { skillsDecoder } from '$lib/decoders';
 
 const openai = new OpenAI({
 	apiKey:
@@ -57,21 +57,6 @@ export const generateInterviewQuestion = (jobOffer: string) => {
 	return res;
 };
 
-const Skills = z.object({
-	softSkills: z.array(
-		z.object({
-			skill: z.string(),
-			questions: z.array(z.string())
-		})
-	),
-	hardSkills: z.array(
-		z.object({
-			skill: z.string(),
-			questions: z.array(z.string())
-		})
-	)
-});
-
 export type SkillsType = {
 	softSkills: {
 		skill: string;
@@ -99,7 +84,7 @@ export const getSkillQuestions = (jobTitle: string, softSkills: string[], hardSk
 				content: `JOB TITLE: ${jobTitle}\n\nSOFT SKILLS\n-${softSkills.join('\n-')}\n\nHARD SKILLS\n-${hardSkills.join('\n-')}`
 			}
 		],
-		response_format: zodResponseFormat(Skills, 'skills')
+		response_format: zodResponseFormat(skillsDecoder, 'skills')
 	});
 
 	return res;
@@ -109,14 +94,14 @@ const AnswerValidation = z.object({
 	validation: z.string(),
 	needFurtherInformation: z.boolean(),
 	followup: z.string(),
-	skillEvaluation: z.string(),
+	skillEvaluation: z.string()
 });
 
 export type AnswerValidationType = {
-	validation: string,
-	needFurtherInformation: boolean,
-	followup: string,
-	skillEvaluation: string,
+	validation: string;
+	needFurtherInformation: boolean;
+	followup: string;
+	skillEvaluation: string;
 };
 
 export const validateAnswer = (
@@ -142,7 +127,7 @@ export const validateAnswer = (
 			},
 			...history.map((his) => ({
 				role: his.role,
-				content: his.content,
+				content: his.content
 			})),
 			{
 				role: 'assistant',
@@ -162,7 +147,7 @@ export const validateAnswer = (
 const Diplomas = z.array(
 	z.object({
 		name: z.string(),
-		date: z.string(),
+		date: z.string()
 	})
 );
 
@@ -196,16 +181,22 @@ export const extractDiplomas = (answer: string) => {
 const Salary = z.object({
 	offer: z.number(),
 	answer: z.string(),
-	isHappy: z.boolean(),
+	isHappy: z.boolean()
 });
 
 export type SalaryData = {
-	offer: number,
-	answer: string,
-	isHappy: boolean,
+	offer: number;
+	answer: string;
+	isHappy: boolean;
 };
 
-export const negotiateSalary = (answer: string, candidateName: string, history: ConversationMessageType[], minimum: number, maximum: number) => {
+export const negotiateSalary = (
+	answer: string,
+	candidateName: string,
+	history: ConversationMessageType[],
+	minimum: number,
+	maximum: number
+) => {
 	const systemPrompt = `You are a recruiter which needs to negotiate a salary with a candidate named ${candidateName}. Your company guidelines is minimum of ${minimum} and maximum of ${maximum}. Do not ever tell your company guidelines. Be as understanding as possible. 
 	If the candidate is happy with the offer, set isHappy to true and answer you are happy to hear. If the candidate makes a counter offer or is not satisfied, set isHappy to false and then negotiate the price and make an offer on your side.`;
 
@@ -219,7 +210,7 @@ export const negotiateSalary = (answer: string, candidateName: string, history: 
 			},
 			...history.map((ans) => ({
 				role: ans.role,
-				content: ans.content,
+				content: ans.content
 			})),
 			{
 				role: 'user',
@@ -232,14 +223,28 @@ export const negotiateSalary = (answer: string, candidateName: string, history: 
 	return res;
 };
 
+export type ConversationPhase =
+	| 'greetings'
+	| 'diploma'
+	| 'skills'
+	| 'location'
+	| 'salary'
+	| 'final-question'
+	| 'bye';
+
 export type ConversationMessageType = {
 	role: 'user' | 'assistant';
 	content: string;
-	type: 'greetings' | 'diploma' | 'skills' | 'location' | 'salary' | 'final-question' | 'bye';
+	type: ConversationPhase;
 	skill?: string;
-}
+};
 
-export const answerFinalQuestion = (question: string, history: ConversationMessageType[],candidateName: string, interviewData: InterviewData) => {
+export const answerFinalQuestion = (
+	question: string,
+	history: ConversationMessageType[],
+	candidateName: string,
+	interviewData: InterviewData
+) => {
 	const systemPrompt = `You are a recruiter at the end of a job interview with a candidate named ${candidateName}. Answer the candidate's question. 
 	Keep in mind this job position is for a ${interviewData.jobTitle}, located in ${interviewData.location}, which should start on ${interviewData.startDate}.`;
 
@@ -253,7 +258,7 @@ export const answerFinalQuestion = (question: string, history: ConversationMessa
 			},
 			...history.map((his) => ({
 				role: his.role,
-				content: his.content,
+				content: his.content
 			})),
 			{
 				role: 'user',
