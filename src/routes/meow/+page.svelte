@@ -5,10 +5,22 @@
 		const response = await fetch(`/uploadTTSQuestion`, {
 			method: 'POST',
 			body: JSON.stringify({
-				questions: ['Oil up sally', "Hi i'm Matteo, i'm a winner", 'GNAAAAAAAM']
+				questions: [
+					'Thank you so much for your time today! It was great chatting with you, and I appreciate your insights. We\'ll be in touch soon—take care!',
+				]
 			}),
 			headers: { contentType: 'application/json' }
 		});
+
+		// const response = await fetch(`/uploadAcks`, {
+		// 	method: 'POST',
+		// 	body: JSON.stringify({
+		// 		acks: [
+		// 			'Thank you for sharing that!',
+		// 		]
+		// 	}),
+		// 	headers: { contentType: 'application/json' }
+		// });
 
 		const audioData = await response.arrayBuffer();
 
