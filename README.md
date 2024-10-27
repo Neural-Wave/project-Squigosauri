@@ -41,3 +41,8 @@ Before running this project, make sure you have the following installed:
 ### Dependencies
 
 All required dependencies are listed in the `requirements.txt` file for easy setup.
+
+### Demo video
+
+[Eternal video example](https://www.loom.com/share/b1233c68ddf34586bf64b03237750f85?sid=3f535bae-3547-4349-8525-6a2b9c862e97)
+[Add on with correct functionaity video](https://www.loom.com/share/43f01dfdc8ce49cd8210a5486fdaad2f?sid=3564bed7-5a5e-4b09-96c0-708ce9a00907)
