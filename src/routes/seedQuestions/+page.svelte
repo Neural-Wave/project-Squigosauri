@@ -6,7 +6,7 @@
 			method: 'POST',
 			body: JSON.stringify({
 				questions: [
-					'Thank you so much for your time today! It was great chatting with you, and I appreciate your insights. We\'ll be in touch soon—take care!',
+					"Thank you so much for your time today! It was great chatting with you, and I appreciate your insights. We'll be in touch soon—take care!"
 				]
 			}),
 			headers: { contentType: 'application/json' }
