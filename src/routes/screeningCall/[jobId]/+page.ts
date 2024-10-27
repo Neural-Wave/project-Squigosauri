@@ -16,7 +16,6 @@ export type CallPageData = {
 	softSkillQuestions: Record<string, { url: string; skill: string }>;
 	hardSkillQuestions: Record<string, { url: string; skill: string }>;
 	customQuestionURL: {
-		initialAck: { url: string; text: string };
 		greetingEnd: { url: string; text: string };
 		diploma: { url: string; text: string };
 		transition: { url: string; text: string };
@@ -24,6 +23,7 @@ export type CallPageData = {
 		lastQuestion: { url: string; text: string };
 		byeBye: { url: string; text: string };
 	};
+	assemblyAIToken: string;
 };
 
 initializeApp(firebaseConfig);
@@ -104,18 +104,15 @@ export const load: PageLoad = async ({ params, fetch, url }) => {
 	const locationArrayBuffer = await locationAudio.arrayBuffer();
 	const locationQuestion = { buffer: locationArrayBuffer, text: locationText };
 
-	const initialAckId = randomElement((await getDocs(collection(db, 'acks'))).docs).id;
-	const initialAckQuestion = {
-		url: await getDownloadURL(ref(storage, `acks/${initialAckId}.mp3`)),
-		text: (await getDoc(doc(db, 'acks', initialAckId))).data()?.name
-	};
-
 	const greetingQuestion = await getQuestionInfoFromId('Ql7iRAdQt3QgSJ4umPnv');
 	const diplomaQuestion = await getQuestionInfoFromId('UpA402IkN24tpcTxyssA');
 	const transitionQuestion = await getQuestionInfoFromId('rLZp9uq8fxlDJytPWojX');
 	const salaryQuestion = await getQuestionInfoFromId('V8Gnhud3yTZybDFA3MpB');
 	const lastQuestionQuestion = await getQuestionInfoFromId('8GGE1Q7Hzd4rEAwZgbYz');
 	const byeByeQuestion = await getQuestionInfoFromId('jFhS1L9h4kQjaOq0MLjA');
+
+	// const client = new AssemblyAI({ apiKey: '08299525b5064f8f98eaebaa2b5f8356' });
+	// const assemblyAIToken = await client.realtime.createTemporaryToken({ expires_in: 999999 });
 
 	return {
 		job: { ...job, id: jobId },
@@ -126,13 +123,13 @@ export const load: PageLoad = async ({ params, fetch, url }) => {
 		softSkillQuestions: softSkillQuestionsURLMap,
 		hardSkillQuestions: hardSkillQuestionsURLMap,
 		customQuestionURL: {
-			initialAck: initialAckQuestion,
 			greetingEnd: greetingQuestion,
 			diploma: diplomaQuestion,
 			transition: transitionQuestion,
 			salary: salaryQuestion,
 			lastQuestion: lastQuestionQuestion,
 			byeBye: byeByeQuestion
-		}
+		},
+		assemblyAIToken: '53b2ae42e602b90f76c30e52e4a0ae8f94fb965a95512f3ab90953f384e875d0'
 	} satisfies CallPageData;
 };

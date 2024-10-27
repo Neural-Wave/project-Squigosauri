@@ -144,12 +144,14 @@ export const validateAnswer = (
 	return res;
 };
 
-const Diplomas = z.array(
-	z.object({
-		name: z.string(),
-		date: z.string()
-	})
-);
+const Diplomas = z.object({
+	diplomas: z.array(
+		z.object({
+			name: z.string(),
+			date: z.string()
+		})
+	)
+});
 
 export type DiplomasData = {
 	name: string;
