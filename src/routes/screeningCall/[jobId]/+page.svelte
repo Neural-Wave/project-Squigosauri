@@ -32,6 +32,7 @@
 	let currentAck = transition;
 
 	let messageHistory: ConversationMessageType[] = [];
+	let finalTranscript: ConversationMessageType[] = $state([]);
 
 	let questionQueue = $state([
 		{
@@ -49,69 +50,69 @@
 			questionText: diploma.text,
 			shouldPlayAck: true
 		},
-		// ...Object.entries(softSkillQuestions).map(([text, { url, skill }]) => {
-		// 	return {
-		// 		playQuestion: (onPlaybackEnd: () => void) => {
-		// 			const audioPlayer = new Audio(url);
-		// 			audioPlayer.onended = onPlaybackEnd;
-		// 			audioPlayer.play();
-		// 		},
-		// 		answerHandler: async (answer: string) => {
-		// 			const validationAnswer = await validateAnswer(
-		// 				job,
-		// 				name,
-		// 				messageHistory,
-		// 				skill,
-		// 				text,
-		// 				answer
-		// 			);
-		// 			const { validation } = JSON.parse(validationAnswer.choices[0].message.content ?? '');
-		// 			messageHistory.push({ role: 'assistant', content: text });
-		// 			messageHistory.push({ role: 'user', content: answer });
-		// 			// questionQueue.unshift({
-		// 			// 	playQuestion: (onPlaybackEnd: () => void) => {
-		// 			// 		const audioPlayer = new Audio(url);
-		// 			// 		audioPlayer.onended = onPlaybackEnd;
-		// 			// 		audioPlayer.play();
-		// 			// 	},
-		// 			// 	answerHandler: async (answer: string) => {
-		// 			// 		const validationAnswer = await validateAnswer(job, name, [], skill, text, answer);
-		// 			// 		const { validation } = JSON.parse(validationAnswer.choices[0].message.content ?? '');
-		// 			// 		questionQueue.unshift();
-		// 			// 	},
-		// 			// 	questionText: text,
-		// 			// 	shouldPlayAck: true
-		// 			// });
-		// 		},
-		// 		questionText: text,
-		// 		shouldPlayAck: true
-		// 	};
-		// }),
-		// ...Object.entries(hardSkillQuestions).map(([text, { url, skill }]) => {
-		// 	return {
-		// 		playQuestion: (onPlaybackEnd: () => void) => {
-		// 			const audioPlayer = new Audio(url);
-		// 			audioPlayer.onended = onPlaybackEnd;
-		// 			audioPlayer.play();
-		// 		},
-		// 		answerHandler: async (answer: string) => {
-		// 			const validationAnswer = await validateAnswer(
-		// 				job,
-		// 				name,
-		// 				messageHistory,
-		// 				skill,
-		// 				text,
-		// 				answer
-		// 			);
-		// 			const { validation } = JSON.parse(validationAnswer.choices[0].message.content ?? '');
-		// 			messageHistory.push({ role: 'assistant', content: text });
-		// 			messageHistory.push({ role: 'user', content: answer });
-		// 			console.log(validation);
-		// 		},
-		// 		questionText: text,
-		// 		shouldPlayAck: true
-		// 	};
-		// }),
+		...Object.entries(softSkillQuestions).map(([text, { url, skill }]) => {
+			return {
+				playQuestion: (onPlaybackEnd: () => void) => {
+					const audioPlayer = new Audio(url);
+					audioPlayer.onended = onPlaybackEnd;
+					audioPlayer.play();
+				},
+				answerHandler: async (answer: string) => {
+					const validationAnswer = await validateAnswer(
+						job,
+						name,
+						messageHistory,
+						skill,
+						text,
+						answer
+					);
+					const { validation } = JSON.parse(validationAnswer.choices[0].message.content ?? '');
+					messageHistory.push({ role: 'assistant', content: text });
+					messageHistory.push({ role: 'user', content: answer });
+					// questionQueue.unshift({
+					// 	playQuestion: (onPlaybackEnd: () => void) => {
+					// 		const audioPlayer = new Audio(url);
+					// 		audioPlayer.onended = onPlaybackEnd;
+					// 		audioPlayer.play();
+					// 	},
+					// 	answerHandler: async (answer: string) => {
+					// 		const validationAnswer = await validateAnswer(job, name, [], skill, text, answer);
+					// 		const { validation } = JSON.parse(validationAnswer.choices[0].message.content ?? '');
+					// 		questionQueue.unshift();
+					// 	},
+					// 	questionText: text,
+					// 	shouldPlayAck: true
+					// });
+				},
+				questionText: text,
+				shouldPlayAck: true
+			};
+		}),
+		...Object.entries(hardSkillQuestions).map(([text, { url, skill }]) => {
+			return {
+				playQuestion: (onPlaybackEnd: () => void) => {
+					const audioPlayer = new Audio(url);
+					audioPlayer.onended = onPlaybackEnd;
+					audioPlayer.play();
+				},
+				answerHandler: async (answer: string) => {
+					const validationAnswer = await validateAnswer(
+						job,
+						name,
+						messageHistory,
+						skill,
+						text,
+						answer
+					);
+					const { validation } = JSON.parse(validationAnswer.choices[0].message.content ?? '');
+					messageHistory.push({ role: 'assistant', content: text });
+					messageHistory.push({ role: 'user', content: answer });
+					console.log(validation);
+				},
+				questionText: text,
+				shouldPlayAck: true
+			};
+		}),
 		{
 			playQuestion: (onPlaybackEnd: () => void) => {
 				playAudio(location.buffer, onPlaybackEnd);
@@ -156,15 +157,15 @@
 				messageHistory.push({ role: 'assistant', content: lastQuestion.text });
 				messageHistory.push({ role: 'user', content: answer });
 
-				const negotiationAnswer = await answerFinalQuestion(answer, messageHistory, name, job);
-				const lastQuestionAnswer = negotiationAnswer.choices[0].message.content ?? '';
+				const finalQuestionAnswer = await answerFinalQuestion(answer, messageHistory, name, job);
+				const lastQuestionAnswer = finalQuestionAnswer.choices[0].message.content ?? '';
 				let encodeUrl = new URLSearchParams({ question: lastQuestionAnswer });
 				const lastQuestionAudio = await fetch(`/dynamicTTS?${encodeUrl.toString()}`, {
 					method: 'GET'
 				});
 				const buffer = await lastQuestionAudio.arrayBuffer();
 
-				questionQueue[0] = {
+				questionQueue.push({
 					playQuestion: (onPlaybackEnd: () => void) => {
 						playAudio(buffer, () => {
 							const audioPlayer = new Audio(byeBye.url);
@@ -173,11 +174,12 @@
 						});
 					},
 					answerHandler: async (innerAnswer: string) => {
-						messageHistory.push({ role: 'assistant', content: innerAnswer + byeBye.text });
+						messageHistory.push({ role: 'assistant', content: lastQuestionAnswer });
+						conversationStatus = 'COMPLETE';
 					},
 					questionText: answer,
 					shouldPlayAck: false
-				};
+				});
 			},
 			questionText: lastQuestion.text,
 			shouldPlayAck: false
@@ -189,7 +191,7 @@
 
 	$effect(() => {
 		if (stream) {
-			if (conversationStatus !== "HUMAN_TALKING") {
+			if (conversationStatus !== 'HUMAN_TALKING') {
 				stream.getAudioTracks()[0].enabled = false;
 			} else {
 				stream.getAudioTracks()[0].enabled = true;
@@ -214,7 +216,7 @@
 			}
 		});
 
-		transcriber.connect();
+		await transcriber.connect();
 
 		stream = await navigator.mediaDevices.getUserMedia({
 			audio: true
@@ -272,6 +274,9 @@
 			}
 			case 'COMPLETE': {
 				transcriber.close();
+				const audioPlayer = new Audio(byeBye.url);
+				audioPlayer.play();
+				messageHistory.push({ role: 'assistant', content: byeBye.text });
 				return;
 			}
 		}
