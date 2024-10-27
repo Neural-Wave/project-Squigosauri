@@ -269,3 +269,28 @@ export const answerFinalQuestion = (
 
 	return res;
 };
+
+export const summarizeConversation = (
+	history: ConversationMessageType[],
+	interviewData: InterviewData
+) => {
+	const systemPrompt = `You need to summarise the whole conversation in order for an external user to quickly understand how the job interview went.
+	Keep in mind this job position is for a ${interviewData.jobTitle}, located in ${interviewData.location}, which should start on ${interviewData.startDate}.`;
+
+	const res = openai.chat.completions.create({
+		model: 'gpt-4o',
+		temperature: 0,
+		messages: [
+			{
+				role: 'system',
+				content: systemPrompt
+			},
+			...history.map((his) => ({
+				role: his.role,
+				content: his.content
+			}))
+		]
+	});
+
+	return res;
+};

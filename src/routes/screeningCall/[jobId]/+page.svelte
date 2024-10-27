@@ -7,6 +7,7 @@
 		answerFinalQuestion,
 		extractDiplomas,
 		negotiateSalary,
+		summarizeConversation,
 		validateAnswer,
 		type ConversationMessageType
 	} from '$lib/proomp/prompts';
@@ -196,6 +197,7 @@
 	});
 
 	let transcription = $state('');
+	let summary = $state('');
 
 	onMount(async () => {
 		transcriber = new RealtimeTranscriber({ token: assemblyAIToken, sampleRate: 16_000 });
@@ -274,6 +276,10 @@
 				audioPlayer.play();
 				messageHistory.push({ role: 'assistant', content: byeBye.text });
 				finalTranscript = messageHistory;
+
+				summarizeConversation(messageHistory, job).then((data) => {
+					summary = data.choices[0].message.content ?? '';
+				});
 				return;
 			}
 		}
@@ -299,6 +305,12 @@
 			{#each finalTranscript as entry}
 				<p>{entry.role}: {entry.content}</p>
 			{/each}
+		</div>
+	{/if}
+	{#if summary.length > 0}
+		<div>
+			<p>SUMMARY</p>
+			<p>{summary}</p>
 		</div>
 	{/if}
 </div>
